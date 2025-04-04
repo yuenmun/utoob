@@ -37,22 +37,48 @@
   }
 }
 
-/* Aspect ratio container for YouTube player */
-.aspect-w-16 {
+/* YouTube player container styles */
+.youtube-player-container {
   position: relative;
-  padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
-  height: 0;
+  width: 100%;
   overflow: hidden;
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
 }
 
-.aspect-h-9 {
-  position: relative;
+.youtube-player-container::after {
+  content: "";
+  display: block;
+  padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
 }
 
-.aspect-w-16 iframe {
+.youtube-player-container iframe {
   position: absolute;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
+  border: 0;
+}
+
+/* Highlight animation for active word */
+.word-highlight {
+  background-color: #fef3c7;
+  transition: background-color 0.3s ease;
+  border-radius: 0.25rem;
+  padding: 0.125rem 0;
+}
+
+/* Loading spinner animation */
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.loading-spinner {
+  animation: spin 1s linear infinite;
 }

@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import YouTube from 'react-youtube';
 import { transcribeVideo } from '../services/api';
 
@@ -35,15 +35,15 @@ const TranscriptGenerator: React.FC = () => {
     e.preventDefault();
     setError(null);
     setTranscriptData(null);
+    setIsLoading(true); // Set loading state to true when starting
     
     const videoId = getVideoIdFromUrl(url);
     if (!videoId) {
       setError('Invalid YouTube URL. Please enter a valid URL.');
+      setIsLoading(false); // Reset loading state on error
       return;
     }
 
-    setIsLoading(true);
-    
     try {
       console.log('Sending request for videoId:', videoId);
       const data = await transcribeVideo({ videoId });
@@ -52,7 +52,7 @@ const TranscriptGenerator: React.FC = () => {
       console.error('Transcription error:', err);
       setError(err.message || 'Failed to generate transcript. Please try again.');
     } finally {
-      setIsLoading(false);
+      setIsLoading(false); // Reset loading state whether successful or not
     }
   };
 
@@ -70,13 +70,13 @@ const TranscriptGenerator: React.FC = () => {
   };
 
   // Find active word based on current time
-  const getActiveWordIndex = (): number => {
+  const getActiveWordIndex = useCallback((): number => {
     if (!transcriptData) return -1;
     
     return transcriptData.words.findIndex(
       (word) => currentTime >= word.start && currentTime <= word.end
     );
-  };
+  }, [currentTime, transcriptData]);
 
   // Auto-scroll to keep active word visible
   useEffect(() => {
@@ -116,7 +116,7 @@ const TranscriptGenerator: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col space-y-6">
+    <div className="flex flex-col space-y-6 p-6 max-w-4xl mx-auto bg-white rounded-lg shadow-md">
       <form onSubmit={handleSubmit} className="flex flex-col space-y-4">
         <div>
           <label htmlFor="youtube-url" className="block text-sm font-medium text-gray-700 mb-1">
@@ -128,7 +128,7 @@ const TranscriptGenerator: React.FC = () => {
             value={url}
             onChange={(e) => setUrl(e.target.value)}
             placeholder="Paste YouTube video link here..."
-            className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+            className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
             disabled={isLoading}
             required
           />
@@ -137,17 +137,20 @@ const TranscriptGenerator: React.FC = () => {
         <button
           type="submit"
           disabled={isLoading}
-          className={`w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white ${
-            isLoading ? 'bg-indigo-300' : 'bg-indigo-600 hover:bg-indigo-700'
-          } focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500`}
+          className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          {isLoading ? 'Downloading audio & generating transcript with AssemblyAI...' : 'Generate Transcript'}
+          {isLoading ? 'Generating transcript...' : 'Generate Transcript'}
         </button>
       </form>
 
       {error && (
-        <div className="bg-red-50 border-l-4 border-red-400 p-4">
+        <div className="bg-red-50 border-l-4 border-red-400 p-4 rounded-md">
           <div className="flex">
+            <div className="flex-shrink-0">
+              <svg className="h-5 w-5 text-red-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+              </svg>
+            </div>
             <div className="ml-3">
               <p className="text-sm text-red-700">
                 {error}
@@ -157,9 +160,23 @@ const TranscriptGenerator: React.FC = () => {
         </div>
       )}
 
-      {transcriptData && (
+      {isLoading && (
+        <div className="flex flex-col items-center justify-center py-12 bg-gray-50 rounded-lg">
+          <div className="relative">
+            <div className="w-16 h-16 border-4 border-blue-200 border-solid rounded-full"></div>
+            <div className="absolute top-0 left-0 w-16 h-16 border-4 border-blue-600 border-solid rounded-full border-t-transparent animate-spin"></div>
+          </div>
+          <p className="text-gray-700 font-medium mt-4">Downloading audio & generating transcript with AssemblyAI...</p>
+          <p className="text-gray-500 text-sm mt-2">This may take a minute or two depending on the video length.</p>
+          <div className="mt-4 w-full max-w-md bg-gray-200 rounded-full h-2.5">
+            <div className="bg-blue-600 h-2.5 rounded-full animate-pulse w-3/4"></div>
+          </div>
+        </div>
+      )}
+
+      {transcriptData && !isLoading && (
         <div className="mt-6 space-y-6">
-          <div className="aspect-w-16 aspect-h-9">
+          <div className="relative w-full overflow-hidden rounded-lg shadow-md" style={{ paddingBottom: '56.25%' }}>
             <YouTube
               videoId={transcriptData.videoId}
               opts={{
@@ -170,16 +187,17 @@ const TranscriptGenerator: React.FC = () => {
                 }
               }}
               onReady={onPlayerReady}
+              className="absolute top-0 left-0 w-full h-full"
             />
           </div>
 
           <div className="mt-6">
-            <h2 className="text-lg font-medium text-gray-900 mb-2">Transcript</h2>
+            <h2 className="text-xl font-semibold text-gray-900 mb-2">Transcript</h2>
             <div 
               ref={transcriptRef}
-              className="bg-gray-50 p-4 rounded-lg max-h-60 overflow-y-auto"
+              className="bg-gray-50 p-4 rounded-lg max-h-96 overflow-y-auto border border-gray-200"
             >
-              <p className="whitespace-pre-wrap">
+              <p className="whitespace-pre-wrap text-gray-800 leading-relaxed">
                 {transcriptData.words.map((word, index) => (
                   <span
                     key={`${index}-${word.start}`}
@@ -187,7 +205,7 @@ const TranscriptGenerator: React.FC = () => {
                     data-end-time={word.end}
                     className={`${
                       currentTime >= word.start && currentTime <= word.end
-                        ? 'bg-yellow-200'
+                        ? 'bg-yellow-200 font-medium'
                         : ''
                     } transition-colors`}
                   >
@@ -200,9 +218,12 @@ const TranscriptGenerator: React.FC = () => {
 
           <button
             onClick={handleDownload}
-            className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+            className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
           >
-            Download .txt
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+              <path fillRule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clipRule="evenodd" />
+            </svg>
+            Download Transcript (.txt)
           </button>
         </div>
       )}

@@ -1,67 +1,99 @@
 # YouTube Transcript Generator
 
-A web application that allows users to generate transcripts from YouTube videos using AssemblyAI for Speech-to-Text, and displays the transcript with word-by-word highlighting synchronized to the video playback.
+A web application that downloads YouTube videos, transcribes them using AssemblyAI, and displays the transcript alongside the video.
 
 ## Features
 
-- YouTube video URL input
-- Audio extraction from YouTube videos
-- Speech-to-Text using AssemblyAI API
-- Word-by-word transcript highlighting synchronized with video playback
-- Downloadable transcript in .txt format
-- Error handling for invalid URLs and failed transcriptions
+- YouTube video playback
+- Video audio extraction
+- Transcription using AssemblyAI's API
+- Responsive design with Tailwind CSS
+- Real-time loading indicators and feedback
 
 ## Prerequisites
 
 - Node.js (v14 or higher)
-- npm
-- [yt-dlp](https://github.com/yt-dlp/yt-dlp) installed globally
+- npm or yarn
+- An AssemblyAI API key (get one at [https://www.assemblyai.com](https://www.assemblyai.com))
 
 ## Setup
 
-1. Clone this repository
+1. Clone the repository:
+   ```
+   git clone https://github.com/yuenmun/utoob.git
+   cd utoob
+   ```
 
-2. Install dependencies
+2. Install dependencies:
    ```
    npm install
    ```
 
-3. Create a `.env.local` file in the project root with your AssemblyAI API key
+3. Create an `.env.local` file in the root directory with your AssemblyAI API key:
    ```
-   REACT_APP_ASSEMBLYAI_API_KEY=your_assemblyai_api_key
+   ASSEMBLY_AI_API_KEY=your_api_key_here
    ```
-
-4. Install yt-dlp (if not already installed)
-   - On macOS: `brew install yt-dlp`
-   - On Linux: `apt-get install yt-dlp` or use pip: `pip install yt-dlp`
-   - On Windows: Follow instructions at [yt-dlp GitHub repository](https://github.com/yt-dlp/yt-dlp#installation)
 
 ## Running the Application
 
-Run both the frontend and backend concurrently:
+### Development Mode
+
+To run both the React frontend and Node.js backend concurrently:
+
 ```
 npm run dev
 ```
 
 This will start:
-- React frontend on http://localhost:3000
-- Express backend on http://localhost:5000
+- React development server on port 3000
+- Express API server on port 5001
 
-## Usage
+### Run Frontend Only
 
-1. Enter a YouTube video URL in the input field
-2. Click "Generate Transcript" button
-3. Wait for the audio to be downloaded and transcribed
-4. View the video and transcript with synchronized highlighting
-5. Download the transcript as a text file if needed
+```
+npm start
+```
+
+### Run Backend Only
+
+```
+npm run server
+```
+
+For development with auto-restart:
+
+```
+npm run server:dev
+```
+
+## How to Use
+
+1. Enter a YouTube URL in the input field
+2. Click "Generate Transcript"
+3. Wait for the transcription process to complete
+4. View the transcript alongside the video
+
+## API Endpoints
+
+- `POST /api/extract-audio`: Extracts audio from a YouTube video
+- `POST /api/transcribe`: Sends audio to AssemblyAI for transcription
+- `GET /api/transcript/:id`: Retrieves transcription status and results
 
 ## Technologies Used
 
-- Frontend: React, Tailwind CSS, TypeScript
-- Backend: Express.js, Node.js
-- APIs: AssemblyAI
-- Tools: yt-dlp (for YouTube audio extraction)
+- React
+- TypeScript
+- Express.js
+- Node.js
+- Tailwind CSS
+- AssemblyAI API
+- YouTube Data API
 
-## Note
+## License
 
-This application requires an internet connection and a valid AssemblyAI API key to function properly. The transcription process may take some time depending on the length of the video and your internet connection speed.
+MIT
+
+## Acknowledgements
+
+- [AssemblyAI](https://www.assemblyai.com) for providing the transcription API
+- [YouTube Data API](https://developers.google.com/youtube/v3) for video data
