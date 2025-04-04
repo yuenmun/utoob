@@ -1,46 +1,67 @@
-# Getting Started with Create React App
+# YouTube Transcript Generator
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+A web application that allows users to generate transcripts from YouTube videos using AssemblyAI for Speech-to-Text, and displays the transcript with word-by-word highlighting synchronized to the video playback.
 
-## Available Scripts
+## Features
 
-In the project directory, you can run:
+- YouTube video URL input
+- Audio extraction from YouTube videos
+- Speech-to-Text using AssemblyAI API
+- Word-by-word transcript highlighting synchronized with video playback
+- Downloadable transcript in .txt format
+- Error handling for invalid URLs and failed transcriptions
 
-### `npm start`
+## Prerequisites
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+- Node.js (v14 or higher)
+- npm
+- [yt-dlp](https://github.com/yt-dlp/yt-dlp) installed globally
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+## Setup
 
-### `npm test`
+1. Clone this repository
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+2. Install dependencies
+   ```
+   npm install
+   ```
 
-### `npm run build`
+3. Create a `.env.local` file in the project root with your AssemblyAI API key
+   ```
+   REACT_APP_ASSEMBLYAI_API_KEY=your_assemblyai_api_key
+   ```
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+4. Install yt-dlp (if not already installed)
+   - On macOS: `brew install yt-dlp`
+   - On Linux: `apt-get install yt-dlp` or use pip: `pip install yt-dlp`
+   - On Windows: Follow instructions at [yt-dlp GitHub repository](https://github.com/yt-dlp/yt-dlp#installation)
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+## Running the Application
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+Run both the frontend and backend concurrently:
+```
+npm run dev
+```
 
-### `npm run eject`
+This will start:
+- React frontend on http://localhost:3000
+- Express backend on http://localhost:5000
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+## Usage
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+1. Enter a YouTube video URL in the input field
+2. Click "Generate Transcript" button
+3. Wait for the audio to be downloaded and transcribed
+4. View the video and transcript with synchronized highlighting
+5. Download the transcript as a text file if needed
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+## Technologies Used
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+- Frontend: React, Tailwind CSS, TypeScript
+- Backend: Express.js, Node.js
+- APIs: AssemblyAI
+- Tools: yt-dlp (for YouTube audio extraction)
 
-## Learn More
+## Note
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
+This application requires an internet connection and a valid AssemblyAI API key to function properly. The transcription process may take some time depending on the length of the video and your internet connection speed.
